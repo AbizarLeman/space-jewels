@@ -9,6 +9,6 @@
 <body>
     <h1>Best Game</h1>
     <button><a href="<?= base_url('/game'); ?>">Start Game</a></button>
-    <button>High Score</button>
+    <button>High Score:</button>
 </body>
 </html>
