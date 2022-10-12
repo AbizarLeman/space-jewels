@@ -11,197 +11,245 @@ Game
 <script type="text/javascript">
     var config = {
         type: Phaser.AUTO,
-        width: 800,
-        height: 600,
+        //width: 800,
+        //height: 600,
+        width: 500,
+        height: 500,
         physics: {
             default: 'arcade',
             arcade: {
                 gravity: {
-                    y: 300
-                },
-                debug: false
+                    y: 0
+                }
             }
         },
         scene: {
             preload: preload,
             create: create,
             update: update
+        },
+        audio: {
+            disableWebAudio: true
         }
     };
 
-    var player;
-    var stars;
-    var bombs;
-    var platforms;
-    var cursors;
+    var anims;
+    var group;
+    //var timetext;
+    //var timedEvent;
     var score = 0;
-    var gameOver = false;
-    var scoreText;
-
+    var timeText;
     var game = new Phaser.Game(config);
 
     function preload() {
-        this.load.image('sky', '<?php echo base_url('assets/sky.png'); ?>');
-        this.load.image('ground', '<?php echo base_url('assets/platform.png'); ?>');
-        this.load.image('star', '<?php echo base_url('assets/star.png'); ?>');
-        this.load.image('bomb', '<?php echo base_url('assets/bomb.png'); ?>');
-        this.load.spritesheet('dude', '<?php echo base_url('assets/dude.png'); ?>', {
-            frameWidth: 32,
-            frameHeight: 48
-        });
+        this.load.setBaseURL('http://labs.phaser.io');
+
+        //background
+        this.load.image('sky', 'assets/skies/deep-space.jpg');
+
+        //audio
+        //this.load.audio('theme', 'assets/audio/CatAstroPhi_shmup_normal.wav');
+        //this.load.audio('theme', 'assets/audio/DOG.mp3');
+        this.load.audio('theme', 'assets/audio/neriakX_-_Enigma_Gun_Extended_Mix.mp3');
+
+        //elements
+        this.load.image('el', 'assets/sprites/orb-red.png'); //orb-blue.png
+        this.load.image('el1', 'assets/sprites/orb-green.png'); //orb-red.png
+        this.load.image('el2', 'assets/sprites/orb-blue.png'); //orb-green.png
+
+        //gems
+        this.load.atlas('gems', 'assets/tests/columns/gems.png', 'assets/tests/columns/gems.json');
+
+        //friend
+        this.load.image('friend', 'assets/sprites/alienbusters.png');
+
+        //particles
+        //this.load.image('par', 'assets/particles/green.png');
+        //this.load.image('par', 'assets/particles/yellow.png');
+        //this.load.image('par', 'assets/particles/red.png');
+        this.load.image('par', 'assets/particles/blue.png');
+
     }
 
     function create() {
-        //  A simple background for our game
-        this.add.image(400, 300, 'sky');
+        //background
+        this.add.image(250, 250, 'sky');
 
-        //  The platforms group contains the ground and the 2 ledges we can jump on
-        platforms = this.physics.add.staticGroup();
+        //audio
+        var music = this.sound.add('theme');
+        music.loop = true;
+        music.play();
 
-        //  Here we create the ground.
-        //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
-        platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+        //time
+        //timetext = this.add.text(32, 32);
+        //timedEvent = this.time.addEvent({ delay: 500, callback: onEvent, callbackScope: this, loop: true });
 
-        //  Now let's create some ledges
-        platforms.create(600, 400, 'ground');
-        platforms.create(50, 250, 'ground');
-        platforms.create(750, 220, 'ground');
+        //time 
+        //this.timerText = this.add.text(x, y, "").setColor("#000000");
 
-        // The player and its settings
-        player = this.physics.add.sprite(100, 450, 'dude');
+        //score
+        //score = 5;
+        //score = score + 10;
 
-        //  Player physics properties. Give the little guy a slight bounce.
-        player.setBounce(0.2);
-        player.setCollideWorldBounds(true);
+        //const text1 = this.add.text(10, 10, 'Score:' + score);
+        //text1.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
 
-        //  Our player animations, turning, walking left and walking right.
-        this.anims.create({
-            key: 'left',
-            frames: this.anims.generateFrameNumbers('dude', {
-                start: 0,
-                end: 3
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
+        //particles
+        var particles = this.add.particles('par');
 
-        this.anims.create({
-            key: 'turn',
-            frames: [{
-                key: 'dude',
-                frame: 4
-            }],
-            frameRate: 20
-        });
-
-        this.anims.create({
-            key: 'right',
-            frames: this.anims.generateFrameNumbers('dude', {
-                start: 5,
-                end: 8
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
-
-        //  Input Events
-        cursors = this.input.keyboard.createCursorKeys();
-
-        //  Some stars to collect, 12 in total, evenly spaced 70 pixels apart along the x axis
-        stars = this.physics.add.group({
-            key: 'star',
-            repeat: 11,
-            setXY: {
-                x: 12,
-                y: 0,
-                stepX: 70
-            }
-        });
-
-        stars.children.iterate(function(child) {
-
-            //  Give each star a slightly different bounce
-            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-
-        });
-
-        bombs = this.physics.add.group();
-
-        //  The score
-        scoreText = this.add.text(16, 16, 'score: 0', {
-            fontSize: '32px',
-            fill: '#000'
-        });
-
-        //  Collide the player and the stars with the platforms
-        this.physics.add.collider(player, platforms);
-        this.physics.add.collider(stars, platforms);
-        this.physics.add.collider(bombs, platforms);
-
-        //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
-        this.physics.add.overlap(player, stars, collectStar, null, this);
-
-        this.physics.add.collider(player, bombs, hitBomb, null, this);
-    }
-
-    function update() {
-        if (gameOver) {
-            return;
-        }
-
-        if (cursors.left.isDown) {
-            player.setVelocityX(-160);
-
-            player.anims.play('left', true);
-        } else if (cursors.right.isDown) {
-            player.setVelocityX(160);
-
-            player.anims.play('right', true);
-        } else {
-            player.setVelocityX(0);
-
-            player.anims.play('turn');
-        }
-
-        if (cursors.up.isDown && player.body.touching.down) {
-            player.setVelocityY(-330);
-        }
-    }
-
-    function collectStar(player, star) {
-        star.disableBody(true, true);
-
-        //  Add and update the score
-        score += 10;
-        scoreText.setText('Score: ' + score);
-
-        if (stars.countActive(true) === 0) {
-            //  A new batch of stars to collect
-            stars.children.iterate(function(child) {
-
-                child.enableBody(true, child.x, 0, true, true);
-
+        //create new varibles name emitter for particles features - to be use in attaching with elem later
+        /*var em = [];
+        for (var x = 0; x <=2 ; x++){
+            em[x] = particles.createEmitter({
+                speed: 100,
+                scale: { start: 1, end: 0 },
+                blendMode: 'ADD'
             });
+        }*/
 
-            var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+        //elements
+        var el = this.physics.add.image(400, 100, 'el').setInteractive();
+        el.setVelocity(200, 100);
+        el.setBounce(1, 1);
+        el.setCollideWorldBounds(true);
+        el.on('pointerdown', function(pointer) {
+            el.destroy();
+        });
 
-            var bomb = bombs.create(x, 16, 'bomb');
-            bomb.setBounce(1);
-            bomb.setCollideWorldBounds(true);
-            bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
-            bomb.allowGravity = false;
+        var el1 = this.physics.add.image(400, 100, 'el1').setInteractive();
+        el1.setVelocity(200, 200);
+        el1.setBounce(1, 1);
+        el1.setCollideWorldBounds(true);
+        el1.on('pointerdown', function(pointer) {
+            el1.destroy();
+        });
 
+        var el2 = this.physics.add.image(400, 100, 'el2').setInteractive();
+        el2.setVelocity(100, 300);
+        el2.setBounce(1, 1);
+        el2.setCollideWorldBounds(true);
+        el2.on('pointerdown', function(pointer) {
+            el2.destroy();
+        });
+
+        //score
+        const text1 = this.add.text(10, 10, 'Score:' + score);
+        text1.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
+
+        timeText = this.add.text(10, 30);
+        timeText.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
+
+        //make particles follow elements
+        //em[0].startFollow(el);
+        //em[1].startFollow(el1);
+        //em[2].startFollow(el2);
+
+        //animation
+        this.anims.create({
+            key: 'diamond',
+            frames: this.anims.generateFrameNames('gems', {
+                prefix: 'diamond_',
+                end: 15,
+                zeroPad: 4
+            }),
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'prism',
+            frames: this.anims.generateFrameNames('gems', {
+                prefix: 'prism_',
+                end: 6,
+                zeroPad: 4
+            }),
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'ruby',
+            frames: this.anims.generateFrameNames('gems', {
+                prefix: 'ruby_',
+                end: 6,
+                zeroPad: 4
+            }),
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'square',
+            frames: this.anims.generateFrameNames('gems', {
+                prefix: 'square_',
+                end: 14,
+                zeroPad: 4
+            }),
+            repeat: -1
+        });
+
+        anims = ['diamond', 'prism', 'ruby', 'square'];
+
+        //repeat gems & group gems
+        group = this.physics.add.group({
+            key: 'gems',
+            repeat: 20
+        });
+        group.children.iterate(createGem, this);
+
+        //group friends & appear in certain time
+        group1 = this.physics.add.group({
+            key: 'friend',
+            repeat: 1
+        });
+        group1.children.iterate(createfriend, this);
+
+    }
+
+    function update(time) {
+
+        this.physics.world.wrap(group, 32);
+        this.physics.world.wrap(group1, 32);
+        timeText.setText('Time: ' + time);
+
+        //time
+        //timetext.setText('Event.progress: ' + timedEvent.getProgress().toString().substr(0, 4) + '\nEvent removed at 10: ' + c);
+    }
+
+    function createGem(gem) {
+        Phaser.Geom.Rectangle.Random(this.physics.world.bounds, gem).setInteractive();
+
+        gem.play(Phaser.Math.RND.pick(anims));
+        gem.setVelocity(Phaser.Math.Between(-70, 70), Phaser.Math.Between(-70, 70));
+        gem.setBounce(1, 1);
+        gem.on('pointerdown', function(pointer) {
+            gem.destroy();
+        });
+    }
+
+    function createfriend(fren) {
+        Phaser.Geom.Rectangle.Random(this.physics.world.bounds, fren).setInteractive();
+
+        fren.setVelocity(Phaser.Math.Between(90, 40), Phaser.Math.Between(0, 0));
+        fren.setBounce(1, 1);
+        fren.on('pointerdown', function(pointer) {
+            fren.destroy();
+        });
+    }
+
+    //time
+    /*
+    function onEvent ()
+    {
+        c++;
+
+        if (c === 60)
+        {
+            timedEvent.remove(false);
         }
-    }
+    }*/
 
-    function hitBomb(player, bomb) {
-        this.physics.pause();
-
-        player.setTint(0xff0000);
-
-        player.anims.play('turn');
-
-        gameOver = true;
-    }
+    /*Note: 
+    (1) Hit gems within the given time period and get score.
+    (2) Score are based on hitting gem (type of gems = diff score)
+    (3) Watch out obstacles - hitting it will reduce the score
+    */
 </script>
 <?= $this->endSection() ?>
