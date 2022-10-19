@@ -38,8 +38,16 @@ Game
     //var timetext;
     //var timedEvent;
     var score = 0;
+    var scoreText;
     var timeText;
     var game = new Phaser.Game(config);
+
+    var scoreDict = {
+        'diamond': 50,
+        'prism': 40,
+        'ruby': 30,
+        'square': 20,
+    };
 
     function preload() {
         this.load.setBaseURL('http://labs.phaser.io');
@@ -133,8 +141,8 @@ Game
         });
 
         //score
-        const text1 = this.add.text(10, 10, 'Score:' + score);
-        text1.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
+        scoreText = this.add.text(10, 10, 'Score:' + score);
+        scoreText.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
 
         timeText = this.add.text(10, 30);
         timeText.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
@@ -220,7 +228,12 @@ Game
         gem.setVelocity(Phaser.Math.Between(-70, 70), Phaser.Math.Between(-70, 70));
         gem.setBounce(1, 1);
         gem.on('pointerdown', function(pointer) {
+            gemType = gem?.frame?.name.slice(0,-5).trim();
+            gemValue = scoreDict[gemType]
+            score += gemValue
             gem.destroy();
+
+            scoreText.text = 'Score:' + score;
         });
     }
 
