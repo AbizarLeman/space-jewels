@@ -41,6 +41,7 @@ Game
     var scoreText;
     var timeText;
     var game = new Phaser.Game(config);
+    var gemCount = 10;
 
     var scoreDict = {
         'diamond': 50,
@@ -198,7 +199,7 @@ Game
         //repeat gems & group gems
         group = this.physics.add.group({
             key: 'gems',
-            repeat: 20
+            repeat: gemCount
         });
         group.children.iterate(createGem, this);
 
@@ -219,6 +220,16 @@ Game
 
         //time
         //timetext.setText('Event.progress: ' + timedEvent.getProgress().toString().substr(0, 4) + '\nEvent removed at 10: ' + c);
+
+        if (gemCount < 6) {
+            console.log("Running out of gems!");
+            group = this.physics.add.group({
+                key: 'gems',
+                repeat: 7
+            });
+            group.children.iterate(createGem, this);
+            gemCount = 10;
+        }
     }
 
     function createGem(gem) {
@@ -227,13 +238,15 @@ Game
         gem.play(Phaser.Math.RND.pick(anims));
         gem.setVelocity(Phaser.Math.Between(-70, 70), Phaser.Math.Between(-70, 70));
         gem.setBounce(1, 1);
+
         gem.on('pointerdown', function(pointer) {
             gemType = gem?.frame?.name.slice(0,-5).trim();
             gemValue = scoreDict[gemType]
             score += gemValue
-            gem.destroy();
-
             scoreText.text = 'Score:' + score;
+            gem.destroy();
+            --gemCount;
+            // console.log(gemCount);
         });
     }
 
