@@ -34,14 +34,24 @@ Game
     };
 
     var anims;
-    var group;
+    var gemGroup;
+    var friendGroup;
     //var timetext;
     //var timedEvent;
     var score = 0;
     var scoreText;
     var timeText;
     var game = new Phaser.Game(config);
+
     var gemCount = 10;
+    var friendCount = 1;
+    var blueOrbCount = 0;
+    var redOrbCount = 0;
+    var greenOrbCount = 0;
+
+    var blueOrb;
+    var redOrb;
+    var greenOrb;
 
     var scoreDict = {
         'diamond': 50,
@@ -61,10 +71,10 @@ Game
         //this.load.audio('theme', 'assets/audio/DOG.mp3');
         this.load.audio('theme', 'assets/audio/neriakX_-_Enigma_Gun_Extended_Mix.mp3');
 
-        //elements
-        this.load.image('el', 'assets/sprites/orb-red.png'); //orb-blue.png
-        this.load.image('el1', 'assets/sprites/orb-green.png'); //orb-red.png
-        this.load.image('el2', 'assets/sprites/orb-blue.png'); //orb-green.png
+        //orb elements
+        this.load.image('blueOrb', 'assets/sprites/orb-blue.png'); //orb-blue.png
+        this.load.image('redOrb', 'assets/sprites/orb-red.png'); //orb-red.png
+        this.load.image('greenOrb', 'assets/sprites/orb-green.png'); //orb-green.png
 
         //gems
         this.load.atlas('gems', 'assets/tests/columns/gems.png', 'assets/tests/columns/gems.json');
@@ -116,29 +126,33 @@ Game
             });
         }*/
 
-        //elements
-        var el = this.physics.add.image(400, 100, 'el').setInteractive();
-        el.setVelocity(200, 100);
-        el.setBounce(1, 1);
-        el.setCollideWorldBounds(true);
-        el.on('pointerdown', function(pointer) {
-            el.destroy();
+        //orb elements
+        blueOrb = this.physics.add.image(400, 100, 'blueOrb').setInteractive();
+        blueOrb.setVelocity(200, 100);
+        blueOrb.setBounce(1, 1);
+        blueOrb.setCollideWorldBounds(true);
+        blueOrb.on('pointerdown', function(pointer) {
+            blueOrb.destroy();
+            --blueOrbCount;
         });
 
-        var el1 = this.physics.add.image(400, 100, 'el1').setInteractive();
-        el1.setVelocity(200, 200);
-        el1.setBounce(1, 1);
-        el1.setCollideWorldBounds(true);
-        el1.on('pointerdown', function(pointer) {
-            el1.destroy();
+
+        redOrb = this.physics.add.image(400, 100, 'redOrb').setInteractive();
+        redOrb.setVelocity(200, 200);
+        redOrb.setBounce(1, 1);
+        redOrb.setCollideWorldBounds(true);
+        redOrb.on('pointerdown', function(pointer) {
+            redOrb.destroy();
+            --redOrbCount;
         });
 
-        var el2 = this.physics.add.image(400, 100, 'el2').setInteractive();
-        el2.setVelocity(100, 300);
-        el2.setBounce(1, 1);
-        el2.setCollideWorldBounds(true);
-        el2.on('pointerdown', function(pointer) {
-            el2.destroy();
+        greenOrb = this.physics.add.image(400, 100, 'greenOrb').setInteractive();
+        greenOrb.setVelocity(100, 300);
+        greenOrb.setBounce(1, 1);
+        greenOrb.setCollideWorldBounds(true);
+        greenOrb.on('pointerdown', function(pointer) {
+            greenOrb.destroy();
+            --greenOrbCount;
         });
 
         //score
@@ -148,12 +162,12 @@ Game
         timeText = this.add.text(10, 30);
         timeText.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
 
-        //make particles follow elements
-        //em[0].startFollow(el);
-        //em[1].startFollow(el1);
-        //em[2].startFollow(el2);
+        //make particles follow orb elements
+        //em[0].startFollow(blueOrb);
+        //em[1].startFollow(redOrb);
+        //em[2].startFollow(greenOrb);
 
-        //animation
+        //animation        
         this.anims.create({
             key: 'diamond',
             frames: this.anims.generateFrameNames('gems', {
@@ -197,38 +211,102 @@ Game
         anims = ['diamond', 'prism', 'ruby', 'square'];
 
         //repeat gems & group gems
-        group = this.physics.add.group({
+        gemGroup = this.physics.add.group({
             key: 'gems',
             repeat: gemCount
         });
-        group.children.iterate(createGem, this);
+        gemGroup.children.iterate(createGem, this);
 
         //group friends & appear in certain time
-        group1 = this.physics.add.group({
+        friendGroup = this.physics.add.group({
             key: 'friend',
-            repeat: 1
+            repeat: friendCount
         });
-        group1.children.iterate(createfriend, this);
-
+        friendGroup.children.iterate(createFriend, this);
     }
 
-    function update(time) {
+    // function createOrb(texture, velocityX, velocityY) {
+    //     var orb = this.physics.add.image(400, 100, texture).setInteractive();
+    //     orb.setVelocity(velocityX, velocityY);
+    //     orb.setBounce(1, 1);
+    //     orb.setCollideWorldBounds(true);
+    //     orb.on('pointerdown', function(pointer) {
+    //         orb.destroy();
+    //     });
+    // }
 
-        this.physics.world.wrap(group, 32);
-        this.physics.world.wrap(group1, 32);
-        timeText.setText('Time: ' + time);
+    function update(time) {
+        this.physics.world.wrap(gemGroup, 32);
+        this.physics.world.wrap(friendGroup, 32);
+        timeText.setText('Time: ' + Math.floor(time/1000));
 
         //time
         //timetext.setText('Event.progress: ' + timedEvent.getProgress().toString().substr(0, 4) + '\nEvent removed at 10: ' + c);
 
         if (gemCount < 6) {
             console.log("Running out of gems!");
-            group = this.physics.add.group({
-                key: 'gems',
-                repeat: 7
-            });
-            group.children.iterate(createGem, this);
+            setTimeout(() => {
+                gemGroup = this.physics.add.group({
+                    key: 'gems',
+                    repeat: 7
+                });
+                gemGroup.children.iterate(createGem, this);
+            }, 2000);
             gemCount = 10;
+        }
+
+        if (friendCount < 0) {
+            console.log("Oops, you have no friends!");
+            setTimeout(() => {
+                friendGroup = this.physics.add.group({
+                    key: 'friend',
+                    repeat: 1
+                });
+                friendGroup.children.iterate(createFriend, this);
+            }, 3000);
+            friendCount = 1;
+        }
+
+        if (blueOrbCount < 0) {
+            setTimeout(() => {
+                blueOrb = this.physics.add.image(400, 100, 'blueOrb').setInteractive();
+                blueOrb.setVelocity(200, 100);
+                blueOrb.setBounce(1, 1);
+                blueOrb.setCollideWorldBounds(true);
+                blueOrb.on('pointerdown', function(pointer) {
+                    blueOrb.destroy();
+                    --blueOrbCount;
+                });
+            }, 4000);
+            blueOrbCount = 0;
+        }
+        
+        if (redOrbCount < 0) {
+            setTimeout(() => {
+                redOrb = this.physics.add.image(400, 100, 'redOrb').setInteractive();
+                redOrb.setVelocity(200, 200);
+                redOrb.setBounce(1, 1);
+                redOrb.setCollideWorldBounds(true);
+                redOrb.on('pointerdown', function(pointer) {
+                    redOrb.destroy();
+                    --redOrbCount;
+                });
+            }, 4000);
+            redOrbCount = 0;
+        }
+
+        if (greenOrbCount < 0) {
+            setTimeout(() => {
+                greenOrb = this.physics.add.image(400, 100, 'greenOrb').setInteractive();
+                greenOrb.setVelocity(100, 300);
+                greenOrb.setBounce(1, 1);
+                greenOrb.setCollideWorldBounds(true);
+                greenOrb.on('pointerdown', function(pointer) {
+                    greenOrb.destroy();
+                    --greenOrbCount;
+                });
+            }, 4000);
+            greenOrbCount = 0;
         }
     }
 
@@ -246,17 +324,17 @@ Game
             scoreText.text = 'Score:' + score;
             gem.destroy();
             --gemCount;
-            // console.log(gemCount);
         });
     }
 
-    function createfriend(fren) {
-        Phaser.Geom.Rectangle.Random(this.physics.world.bounds, fren).setInteractive();
+    function createFriend(friend) {
+        Phaser.Geom.Rectangle.Random(this.physics.world.bounds, friend).setInteractive();
 
-        fren.setVelocity(Phaser.Math.Between(90, 40), Phaser.Math.Between(0, 0));
-        fren.setBounce(1, 1);
-        fren.on('pointerdown', function(pointer) {
-            fren.destroy();
+        friend.setVelocity(Phaser.Math.Between(90, 40), Phaser.Math.Between(0, 0));
+        friend.setBounce(1, 1);
+        friend.on('pointerdown', function(pointer) {
+            friend.destroy();
+            --friendCount;
         });
     }
 
