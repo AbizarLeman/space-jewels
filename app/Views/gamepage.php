@@ -40,6 +40,11 @@ Game
     var score = 0;
     var scoreText;
     var timeText;
+    var timeBar;
+    var hsv;
+    var timerEvents = [];
+    var originalDuration = 10000; 
+    var duration = originalDuration; 
     var game = new Phaser.Game(config);
     var gemCount = 10;
 
@@ -148,6 +153,21 @@ Game
         timeText = this.add.text(10, 30);
         timeText.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
 
+        durationText = this.add.text(10, 50);
+        durationText.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
+
+        timerEvents.push(this.time.addEvent({
+            delay: Phaser.Math.Between(100000, 100000)
+        }));
+        //200 is 2s
+
+        hsv = Phaser.Display.Color.HSVColorWheel();
+
+        timeBar = this.add.graphics({
+            x: 100,
+            y: 36
+        });
+
         //make particles follow elements
         //em[0].startFollow(el);
         //em[1].startFollow(el1);
@@ -216,10 +236,26 @@ Game
 
         this.physics.world.wrap(group, 32);
         this.physics.world.wrap(group1, 32);
-        timeText.setText('Time: ' + time);
 
-        //time
-        //timetext.setText('Event.progress: ' + timedEvent.getProgress().toString().substr(0, 4) + '\nEvent removed at 10: ' + c);
+        var output = [];
+
+        timeBar.clear();
+
+        for (var i = 0; i < timerEvents.length; i++) {
+            output.push('Timer: ');
+
+            timeBar.fillStyle(hsv[i * 8].color, 1);
+            timeBar.fillRect(0, i * 16, (duration/originalDuration * 300), 8);
+        }
+
+        duration--;
+        durationText.setText('Duration: ' + Math.round(duration/100) + ' seconds left');
+
+        if (duration < 0){
+            game.destroy();
+        }
+
+        timeText.setText(output);
 
         if (gemCount < 6) {
             console.log("Running out of gems!");
@@ -240,7 +276,7 @@ Game
         gem.setBounce(1, 1);
 
         gem.on('pointerdown', function(pointer) {
-            gemType = gem?.frame?.name.slice(0,-5).trim();
+            gemType = gem?.frame?.name.slice(0, -5).trim();
             gemValue = scoreDict[gemType]
             score += gemValue
             scoreText.text = 'Score:' + score;
