@@ -43,7 +43,7 @@ Game
     var timeBar;
     var hsv;
     var timerEvents = [];
-    var originalDuration = 10000; 
+    var originalDuration = 3000; 
     var duration = originalDuration; 
     var game = new Phaser.Game(config);
     var gemCount = 10;
