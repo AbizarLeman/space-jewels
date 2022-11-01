@@ -226,7 +226,7 @@ Game
         //group friends & appear in certain time
         group1 = this.physics.add.group({
             key: 'friend',
-            repeat: 1
+            repeat: 3
         });
         group1.children.iterate(createfriend, this);
 
@@ -289,7 +289,7 @@ Game
     function createfriend(fren) {
         Phaser.Geom.Rectangle.Random(this.physics.world.bounds, fren).setInteractive();
 
-        fren.setVelocity(Phaser.Math.Between(90, 40), Phaser.Math.Between(0, 0));
+        fren.setVelocity(Phaser.Math.Between(200, 120), Phaser.Math.Between(0, 0));
         fren.setBounce(1, 1);
         fren.on('pointerdown', function(pointer) {
             fren.destroy();
