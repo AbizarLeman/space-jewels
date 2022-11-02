@@ -41,6 +41,11 @@ Game
     var score = 0;
     var scoreText;
     var timeText;
+    var timeBar;
+    var hsv;
+    var timerEvents = [];
+    var originalDuration = 3000; 
+    var duration = originalDuration; 
     var game = new Phaser.Game(config);
 
     var gemCount = 10;
@@ -166,6 +171,21 @@ Game
         //em[0].startFollow(blueOrb);
         //em[1].startFollow(redOrb);
         //em[2].startFollow(greenOrb);
+        
+        durationText = this.add.text(10, 50);
+        durationText.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
+
+        timerEvents.push(this.time.addEvent({
+            delay: Phaser.Math.Between(100000, 100000)
+        }));
+        //200 is 2s
+
+        hsv = Phaser.Display.Color.HSVColorWheel();
+
+        timeBar = this.add.graphics({
+            x: 100,
+            y: 36
+        });
 
         //animation        
         this.anims.create({
@@ -234,14 +254,31 @@ Game
     //         orb.destroy();
     //     });
     // }
-
+    
     function update(time) {
         this.physics.world.wrap(gemGroup, 32);
         this.physics.world.wrap(friendGroup, 32);
         timeText.setText('Time: ' + Math.floor(time/1000));
 
-        //time
-        //timetext.setText('Event.progress: ' + timedEvent.getProgress().toString().substr(0, 4) + '\nEvent removed at 10: ' + c);
+        var output = [];
+
+        timeBar.clear();
+
+        for (var i = 0; i < timerEvents.length; i++) {
+            output.push('Timer: ');
+
+            timeBar.fillStyle(hsv[i * 8].color, 1);
+            timeBar.fillRect(0, i * 16, (duration/originalDuration * 300), 8);
+        }
+
+        duration--;
+        durationText.setText('Duration: ' + Math.round(duration/100) + ' seconds left');
+
+        if (duration < 0){
+            game.destroy();
+        }
+
+        timeText.setText(output);
 
         if (gemCount < 6) {
             console.log("Running out of gems!");
@@ -318,7 +355,7 @@ Game
         gem.setBounce(1, 1);
 
         gem.on('pointerdown', function(pointer) {
-            gemType = gem?.frame?.name.slice(0,-5).trim();
+            gemType = gem?.frame?.name.slice(0, -5).trim();
             gemValue = scoreDict[gemType]
             score += gemValue
             scoreText.text = 'Score:' + score;
@@ -329,8 +366,8 @@ Game
 
     function createFriend(friend) {
         Phaser.Geom.Rectangle.Random(this.physics.world.bounds, friend).setInteractive();
-
-        friend.setVelocity(Phaser.Math.Between(90, 40), Phaser.Math.Between(0, 0));
+        
+        friend.setVelocity(Phaser.Math.Between(200, 120), Phaser.Math.Between(0, 0));
         friend.setBounce(1, 1);
         friend.on('pointerdown', function(pointer) {
             friend.destroy();
