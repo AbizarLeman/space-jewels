@@ -28,9 +28,16 @@ Home
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <img id="optionalstuff" src="<?php echo base_url('assets/rules.png') ?> " class="col-md-6 offset-md-3 my-3" />
                 <div class="mb-3">
-                    <label for="exampleFormControlInput1" class="form-label">Name</label>
-                    <input type="text" class="form-control" name="name" id="name">
+                    <label for="username" class="form-label">Enter your username:</label>
+                    <input type="text" class="form-control" name="username" id="username">
+                    <label for="time" class="form-label">Play time:</label>
+                    <select class="form-select">
+                        <option value="1">10 Seconds</option>
+                        <option value="2">20 Seconds</option>
+                        <option value="3">30 Seconds</option>
+                    </select>
                 </div>
             </div>
             <div class="modal-footer">
@@ -41,7 +48,7 @@ Home
 </div>
 <script>
     const redirect = () => {
-        window.location.href = "<?= base_url('/game'); ?>/" + document.getElementById("name").value;
+        window.location.href = "<?= base_url('/game'); ?>/" + document.getElementById("username").value;
     }
 </script>
 
