@@ -6,7 +6,20 @@ Game
 
 
 <?= $this->section('content') ?>
-<!-- <div>Player Name: <?php echo $name; ?></div> -->
+
+<div class="modal" id="savingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="savingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <h1 class="modal-title text-center fs-1 text-danger" id="savingModalLabel">Saving score for ...</h1>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script type="text/javascript">
     var config = {
@@ -45,6 +58,8 @@ Game
     var gameOverBanner;
     var replayButton;
     var cancelButton;
+
+    var scoreSaved = false;
 
     var highScore = '<?php echo $highscore; ?>';
     var highScoreText;
@@ -116,6 +131,8 @@ Game
     }
 
     function create() {
+        scoreSaved = false;
+
         originalDuration = 1000;
         duration = originalDuration;
 
@@ -342,6 +359,9 @@ Game
 
         if (duration < 0) {
             this.physics.pause();
+            if (scoreSaved === false) {
+                saveScore()
+            }
             gameOverBanner.visible = true;
             replayButton.visible = true;
             cancelButton.visible = true;
@@ -445,12 +465,39 @@ Game
         friend.setBounce(1, 1);
         friend.on('pointerdown', function(pointer) {
             if (duration > 0) {
-                score -= Math.round(score/2)
+                score -= Math.round(score / 2)
                 scoreText.text = 'Score:' + score;
                 friend.destroy();
                 --friendCount;
             }
         });
+    }
+
+    async function saveScore() {
+        $('#savingModal').modal('show');
+        try {
+            $.ajax({
+                type: "POST",
+                async: false,
+                url: '<?= base_url('/highscore'); ?>',
+                data: {
+                    "player_name": "<?php echo $name; ?>",
+                    "score": score
+                },
+                success: function(response) {
+                    console.log("Success!")
+                    $('#savingModal').modal('hide');
+                },
+                error: function(request, error) {
+                    console.log(error);
+                    $('#savingModal').modal('hide');
+                }
+            });
+        } catch (error) {
+
+        }
+
+        scoreSaved = true;
     }
 
     //time

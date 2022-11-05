@@ -15,7 +15,7 @@
         <?= $this->renderSection('content') ?>
     </main>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+    <script src="<?= base_url('/jquery-3.6.1.min.js'); ?>"></script>
     <script src="<?php echo base_url('bootstrap.bundle.min.js'); ?>"></script>
 </body>
 

@@ -38,6 +38,7 @@ $routes->set404Override();
 $routes->get('/', 'Home::index');
 $routes->get('/game/(:any)', 'Game::index/$1');
 $routes->get('/highscore', 'Highscore::index');
+$routes->post('/highscore', 'Highscore::create');
 
 /*
  * --------------------------------------------------------------------
