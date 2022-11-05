@@ -6,15 +6,25 @@ Home
 
 
 <?= $this->section('content') ?>
-<h1>Best Game</h1>
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Start Game</button>
-<a href="<?= base_url('/highscore'); ?>"><button type="button" class="btn btn-primary">High Score</button></a>
+<div class="container">
+    <div class="row justify-content-center align-items-center px-4" style="margin-top: 20vh">
+        <img class="col-md-8 my-4" src="<?php echo base_url('assets/welcomebanner.png') ?>" class="col-md-6 offset-md-3" />
+        <button type="button" class="col-md-8 menu-button btn btn-danger my-3 btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            <h1>Start Game</h1>
+        </button>
+        <button type="button" class="col-md-8 menu-button btn btn-danger my-3 btn-lg">
+            <a href="<?= base_url('/highscore'); ?>">
+                <h1>High Score</h1>
+            </a>
+        </button>
+    </div>
+</div>
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Please Enter Your Name:</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Rules</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -24,7 +34,7 @@ Home
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-primary" onclick="redirect();">Play</button>
+                <button type="submit" class="btn btn-danger mt-3 btn-lg" onclick="redirect();">Play</button>
             </div>
         </div>
     </div>
@@ -34,4 +44,16 @@ Home
         window.location.href = "<?= base_url('/game'); ?>/" + document.getElementById("name").value;
     }
 </script>
+
+<style>
+    body {
+        background-image: url(<?php echo base_url('assets/space1.png') ?>);
+    }
+
+    @media (max-width:770px) {
+        img#optionalstuff {
+            display: none;
+        }
+    }
+</style>
 <?= $this->endSection() ?>

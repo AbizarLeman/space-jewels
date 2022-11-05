@@ -1,0 +1,33 @@
+a:link {
+    text-decoration: none;
+    all: unset;
+}
+
+a:visited {
+    text-decoration: none;
+    all: unset;
+}
+
+a:hover {
+    text-decoration: none;
+    all: unset;
+}
+
+a:active {
+    text-decoration: none;
+    all: unset;
+}
+
+a {
+    all: unset;
+}
+
+.menu-button {
+    height: 10vh;
+}
+
+canvas {
+    border: 2rem solid;
+    border-style: double;
+    border-color: #D32F2F;
+}

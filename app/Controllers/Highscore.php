@@ -8,6 +8,9 @@ class Highscore extends BaseController
 {
     public function index()
     {
-        return view('highscore.php');
+        $model = new \App\Models\HighscoreModel;
+        $data = $model->orderBy('score', 'desc')->findAll();
+    
+        return view('highscore.php' , ['highscores' => $data]);
     }
 }

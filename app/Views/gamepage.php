@@ -6,13 +6,11 @@ Game
 
 
 <?= $this->section('content') ?>
-<div>Player Name: <?php echo $name; ?></div>
+<!-- <div>Player Name: <?php echo $name; ?></div> -->
 
 <script type="text/javascript">
     var config = {
         type: Phaser.AUTO,
-        //width: 800,
-        //height: 600,
         width: 500,
         height: 500,
         physics: {
@@ -30,29 +28,41 @@ Game
         },
         audio: {
             disableWebAudio: true
+        },
+        parent: 'game',
+        scale: {
+            mode: Phaser.Scale.FIT, // you can find another types in Phaser.Scale.ScaleModeType: RESIZE | FIT | ENVELOP ...
+            autoCenter: Phaser.Scale.CENTER_BOTH,
         }
     };
+
+    var game = new Phaser.Game(config);
 
     var anims;
     var gemGroup;
     var friendGroup;
-    //var timetext;
-    //var timedEvent;
+
+    var gameOverBanner;
+    var replayButton;
+    var cancelButton;
+
+    var highScore = '<?php echo $highscore; ?>';
+    var highScoreText;
     var score = 0;
     var scoreText;
     var timeText;
     var timeBar;
     var hsv;
     var timerEvents = [];
-    var originalDuration = 3000; 
-    var duration = originalDuration; 
-    var game = new Phaser.Game(config);
 
-    var gemCount = 10;
-    var friendCount = 1;
-    var blueOrbCount = 0;
-    var redOrbCount = 0;
-    var greenOrbCount = 0;
+    var originalDuration;
+    var duration;
+
+    var gemCount;
+    var friendCount;
+    var blueOrbCount;
+    var redOrbCount;
+    var greenOrbCount;
 
     var blueOrb;
     var redOrb;
@@ -63,10 +73,20 @@ Game
         'prism': 40,
         'ruby': 30,
         'square': 20,
+        'blue': 300,
+        'red': 200,
+        'green': 100,
     };
 
     function preload() {
-        this.load.setBaseURL('http://labs.phaser.io');
+        this.load.setBaseURL('<?php echo base_url() ?>');
+
+        //game over banner
+        this.load.image('replaybutton', 'assets/replaybutton.png');
+        this.load.image('cancelbutton', 'assets/cancelbutton.png');
+
+        //game over banner
+        this.load.image('gameover', 'assets/gameover.png');
 
         //background
         this.load.image('sky', 'assets/skies/deep-space.jpg');
@@ -96,8 +116,46 @@ Game
     }
 
     function create() {
+        originalDuration = 1000;
+        duration = originalDuration;
+
+        gemCount = 10;
+        friendCount = 1;
+        blueOrbCount = 0;
+        redOrbCount = 0;
+        greenOrbCount = 0;
+
         //background
         this.add.image(250, 250, 'sky');
+
+        replayButton = this.add.image(200, 350, 'replaybutton', {
+                align: "center",
+            }).setInteractive()
+            .on('pointerdown', () => {
+                score = 0;
+                timerEvents = []
+                this.scene.restart();
+            });
+        replayButton.setScale(0.2);
+        replayButton.setDepth(1);
+        replayButton.visible = false;
+
+        cancelButton = this.add.image(300, 350, 'cancelbutton', {
+                align: "center",
+            }).setInteractive()
+            .on('pointerdown', () => {
+                window.location.replace("<?php echo base_url() ?>");
+            });
+        cancelButton.setScale(0.2);
+        cancelButton.setDepth(1);
+        cancelButton.visible = false;
+
+        gameOverBanner = this.add.image(250, 250, 'gameover', {
+            align: "center",
+        });
+        gameOverBanner.setScale(0.2);
+        gameOverBanner.setDepth(1);
+        gameOverBanner.visible = false;
 
         //audio
         var music = this.sound.add('theme');
@@ -133,47 +191,61 @@ Game
 
         //orb elements
         blueOrb = this.physics.add.image(400, 100, 'blueOrb').setInteractive();
-        blueOrb.setVelocity(200, 100);
+        blueOrb.setVelocity(800, 700);
         blueOrb.setBounce(1, 1);
         blueOrb.setCollideWorldBounds(true);
         blueOrb.on('pointerdown', function(pointer) {
-            blueOrb.destroy();
-            --blueOrbCount;
+            if (duration > 0) {
+                score += scoreDict["blue"]
+                scoreText.text = 'Score:' + score;
+                blueOrb.destroy();
+                --blueOrbCount;
+            }
         });
 
 
         redOrb = this.physics.add.image(400, 100, 'redOrb').setInteractive();
-        redOrb.setVelocity(200, 200);
+        redOrb.setVelocity(400, 300);
         redOrb.setBounce(1, 1);
         redOrb.setCollideWorldBounds(true);
         redOrb.on('pointerdown', function(pointer) {
-            redOrb.destroy();
-            --redOrbCount;
+            if (duration > 0) {
+                score += scoreDict["red"]
+                scoreText.text = 'Score:' + score;
+                redOrb.destroy();
+                --redOrb;
+            }
         });
 
         greenOrb = this.physics.add.image(400, 100, 'greenOrb').setInteractive();
-        greenOrb.setVelocity(100, 300);
+        greenOrb.setVelocity(200, 100);
         greenOrb.setBounce(1, 1);
         greenOrb.setCollideWorldBounds(true);
         greenOrb.on('pointerdown', function(pointer) {
-            greenOrb.destroy();
-            --greenOrbCount;
+            if (duration > 0) {
+                score += scoreDict["green"]
+                scoreText.text = 'Score:' + score;
+                greenOrb.destroy();
+                --greenOrbCount;
+            }
         });
 
         //score
-        scoreText = this.add.text(10, 10, 'Score:' + score);
+        highScoreText = this.add.text(10, 10, 'High Score:' + highScore);
+        highScoreText.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
+        highScoreText.setDepth(1);
+
+        scoreText = this.add.text(10, 30, 'Score:' + score);
         scoreText.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
+        scoreText.setDepth(1);
 
-        timeText = this.add.text(10, 30);
+        timeText = this.add.text(10, 50);
         timeText.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
+        timeText.setDepth(1);
 
-        //make particles follow orb elements
-        //em[0].startFollow(blueOrb);
-        //em[1].startFollow(redOrb);
-        //em[2].startFollow(greenOrb);
-        
-        durationText = this.add.text(10, 50);
+        durationText = this.add.text(10, 70);
         durationText.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
+        durationText.setDepth(1);
 
         timerEvents.push(this.time.addEvent({
             delay: Phaser.Math.Between(100000, 100000)
@@ -184,8 +256,9 @@ Game
 
         timeBar = this.add.graphics({
             x: 100,
-            y: 36
+            y: 55
         });
+        timeBar.setDepth(1);
 
         //animation        
         this.anims.create({
@@ -254,31 +327,30 @@ Game
     //         orb.destroy();
     //     });
     // }
-    
+
     function update(time) {
         this.physics.world.wrap(gemGroup, 32);
         this.physics.world.wrap(friendGroup, 32);
-        timeText.setText('Time: ' + Math.floor(time/1000));
 
-        var output = [];
 
         timeBar.clear();
 
         for (var i = 0; i < timerEvents.length; i++) {
-            output.push('Timer: ');
-
-            timeBar.fillStyle(hsv[i * 8].color, 1);
-            timeBar.fillRect(0, i * 16, (duration/originalDuration * 300), 8);
+            timeBar.fillStyle(hsv[16].color, 1);
+            timeBar.fillRect(0, i * 16, (duration / originalDuration * 300), 8);
         }
 
-        duration--;
-        durationText.setText('Duration: ' + Math.round(duration/100) + ' seconds left');
+        if (duration < 0) {
+            this.physics.pause();
+            gameOverBanner.visible = true;
+            replayButton.visible = true;
+            cancelButton.visible = true;
+        } else {
+            duration--;
+            durationText.setText('Duration: ' + Math.round(duration / 100) + ' seconds left');
 
-        if (duration < 0){
-            game.destroy();
+            timeText.setText('Time: ');
         }
-
-        timeText.setText(output);
 
         if (gemCount < 6) {
             console.log("Running out of gems!");
@@ -317,7 +389,7 @@ Game
             }, 4000);
             blueOrbCount = 0;
         }
-        
+
         if (redOrbCount < 0) {
             setTimeout(() => {
                 redOrb = this.physics.add.image(400, 100, 'redOrb').setInteractive();
@@ -355,23 +427,29 @@ Game
         gem.setBounce(1, 1);
 
         gem.on('pointerdown', function(pointer) {
-            gemType = gem?.frame?.name.slice(0, -5).trim();
-            gemValue = scoreDict[gemType]
-            score += gemValue
-            scoreText.text = 'Score:' + score;
-            gem.destroy();
-            --gemCount;
+            if (duration > 0) {
+                gemType = gem?.frame?.name.slice(0, -5).trim();
+                gemValue = scoreDict[gemType]
+                score += gemValue
+                scoreText.text = 'Score:' + score;
+                gem.destroy();
+                --gemCount;
+            }
         });
     }
 
     function createFriend(friend) {
         Phaser.Geom.Rectangle.Random(this.physics.world.bounds, friend).setInteractive();
-        
+
         friend.setVelocity(Phaser.Math.Between(200, 120), Phaser.Math.Between(0, 0));
         friend.setBounce(1, 1);
         friend.on('pointerdown', function(pointer) {
-            friend.destroy();
-            --friendCount;
+            if (duration > 0) {
+                score -= Math.round(score/2)
+                scoreText.text = 'Score:' + score;
+                friend.destroy();
+                --friendCount;
+            }
         });
     }
 
@@ -393,4 +471,16 @@ Game
     (3) Watch out obstacles - hitting it will reduce the score
     */
 </script>
+
+<style>
+    body {
+        background-image: url(<?php echo base_url('assets/space2.png') ?>);
+    }
+
+    @media (max-width:770px) {
+        img#optionalstuff {
+            display: none;
+        }
+    }
+</style>
 <?= $this->endSection() ?>
