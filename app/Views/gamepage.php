@@ -44,7 +44,7 @@ Game
         },
         parent: 'game',
         scale: {
-            mode: Phaser.Scale.FIT,
+            mode: Phaser.Scale.FIT, // you can find another types in Phaser.Scale.ScaleModeType: RESIZE | FIT | ENVELOP ...
             autoCenter: Phaser.Scale.CENTER_BOTH,
         }
     };
@@ -107,6 +107,8 @@ Game
         this.load.image('sky', 'assets/skies/deep-space.jpg');
 
         //audio
+        //this.load.audio('theme', 'assets/audio/CatAstroPhi_shmup_normal.wav');
+        //this.load.audio('theme', 'assets/audio/DOG.mp3');
         this.load.audio('theme', 'assets/audio/neriakX_-_Enigma_Gun_Extended_Mix.mp3');
 
         //orb elements
@@ -119,6 +121,13 @@ Game
 
         //friend
         this.load.image('friend', 'assets/sprites/alienbusters.png');
+
+        //particles
+        //this.load.image('par', 'assets/particles/green.png');
+        //this.load.image('par', 'assets/particles/yellow.png');
+        //this.load.image('par', 'assets/particles/red.png');
+        this.load.image('par', 'assets/particles/blue.png');
+
     }
 
     function create() {
@@ -169,6 +178,33 @@ Game
         var music = this.sound.add('theme');
         music.loop = true;
         music.play();
+
+        //time
+        //timetext = this.add.text(32, 32);
+        //timedEvent = this.time.addEvent({ delay: 500, callback: onEvent, callbackScope: this, loop: true });
+
+        //time 
+        //this.timerText = this.add.text(x, y, "").setColor("#000000");
+
+        //score
+        //score = 5;
+        //score = score + 10;
+
+        //const text1 = this.add.text(10, 10, 'Score:' + score);
+        //text1.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
+
+        //particles
+        var particles = this.add.particles('par');
+
+        //create new varibles name emitter for particles features - to be use in attaching with elem later
+        /*var em = [];
+        for (var x = 0; x <=2 ; x++){
+            em[x] = particles.createEmitter({
+                speed: 100,
+                scale: { start: 1, end: 0 },
+                blendMode: 'ADD'
+            });
+        }*/
 
         //orb elements
         blueOrb = this.physics.add.image(400, 100, 'blueOrb').setInteractive();
@@ -298,6 +334,16 @@ Game
         });
         friendGroup.children.iterate(createFriend, this);
     }
+
+    // function createOrb(texture, velocityX, velocityY) {
+    //     var orb = this.physics.add.image(400, 100, texture).setInteractive();
+    //     orb.setVelocity(velocityX, velocityY);
+    //     orb.setBounce(1, 1);
+    //     orb.setCollideWorldBounds(true);
+    //     orb.on('pointerdown', function(pointer) {
+    //         orb.destroy();
+    //     });
+    // }
 
     function update(time) {
         this.physics.world.wrap(gemGroup, 32);
@@ -429,10 +475,10 @@ Game
 
     async function saveScore() {
         $('#savingModal').modal('show');
-        
         try {
             $.ajax({
                 type: "POST",
+                async: false,
                 url: '<?= base_url('/highscore'); ?>',
                 data: {
                     "player_name": "<?php echo $name; ?>",
@@ -440,19 +486,37 @@ Game
                 },
                 success: function(response) {
                     console.log("Success!")
+                    $('#savingModal').modal('hide');
                 },
                 error: function(request, error) {
                     console.log(error);
+                    $('#savingModal').modal('hide');
                 }
             });
         } catch (error) {
 
         }
 
-        $('#savingModal').modal('hide');
-
         scoreSaved = true;
     }
+
+    //time
+    /*
+    function onEvent ()
+    {
+        c++;
+
+        if (c === 60)
+        {
+            timedEvent.remove(false);
+        }
+    }*/
+
+    /*Note: 
+    (1) Hit gems within the given time period and get score.
+    (2) Score are based on hitting gem (type of gems = diff score)
+    (3) Watch out obstacles - hitting it will reduce the score
+    */
 </script>
 
 <style>
