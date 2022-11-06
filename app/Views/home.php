@@ -6,15 +6,17 @@ Home
 
 
 <?= $this->section('content') ?>
+
 <div class="container">
     <div class="row justify-content-center align-items-center px-4" style="margin-top: 20vh">
-        <img class="col-md-8 my-4" src="<?php echo base_url('assets/welcomebanner.png') ?>" class="col-md-6 offset-md-3" />
-        <button type="button" class="col-md-8 menu-button btn btn-danger my-3 btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">
-            <h1>Start Game</h1>
+        <img class="col-md-8 my-4" src="<?php echo base_url('assets/newlogo6.png') ?>" class="col-md-6 offset-md-3" />
+        <br></br>
+        <button type="button" class="col-md-8 button-85 btn btn-danger my-3 btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            <h1>START GAME</h1>
         </button>
-        <button type="button" class="col-md-8 menu-button btn btn-danger my-3 btn-lg">
+        <button type="button" class="col-md-8 button-85 btn btn-danger my-3 btn-lg">
             <a href="<?= base_url('/highscore'); ?>">
-                <h1>High Score</h1>
+                <h1>HIGH SCORE</h1>
             </a>
         </button>
     </div>
@@ -24,7 +26,7 @@ Home
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Rules</h5>
+                <h5 class="modal-title" id="exampleModalLabel"><h1>Rules</h1></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -47,6 +49,7 @@ Home
         </div>
     </div>
 </div>
+
 <script>
     const validate = () => {
         const username = document.getElementById("username").value
@@ -62,7 +65,7 @@ Home
 
 <style>
     body {
-        background-image: url(<?php echo base_url('assets/space1.png') ?>);
+        background-image: url(<?php echo base_url('assets/skies/deep-space.jpg') ?>);
     }
 
     @media (max-width:770px) {

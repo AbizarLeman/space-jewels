@@ -6,13 +6,9 @@ Highscore
 
 
 <?= $this->section('content') ?>
-<div class="col-md-6 offset-md-3 p-5" style="background-color:black;">
-    <div class="container">
-        <div class="row justify-content-center align-items-center px-4">
-            <img id="optionalstuff" src="<?php echo base_url('assets/highscore1.png') ?>" />
-        </div>
-    </div>
-    <div class="list-group w-auto" style="max-height: 40vh;overflow: auto;margin-top: 1rem;">
+<div class="col-md-6 offset-md-3 p-5">
+    <img id="optionalstuff" src="<?php echo base_url('assets/highscore2.png') ?> " class="col-md-6 offset-md-3 my-3" />
+    <div class="list-group w-auto" style="max-height: 40vh;overflow: auto;">
         <?php foreach ($highscores as $highscore) {
             echo '
                 <div class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true" style="background-color:light-grey">
@@ -24,19 +20,18 @@ Highscore
                     </div>
                     <small class="opacity-50 text-nowrap">' . $highscore->time . '</small>
                     </div>
-                </div>
-            ';
+                </div> ';
         }
         ?>
     </div>
     <div class="text-center">
-        <a href="<?= base_url('/'); ?>"><button type="button" class="btn btn-danger mt-3 btn-lg">Main Page</button></a>
+        <a href="<?= base_url('/'); ?>"><button type="button" class="btn button-85 btn-danger mt-3 btn-lg"><h2>MAIN PAGE</h2></button></a>
     </div>
 </div>
 
 <style>
     body {
-        background-image: url(<?php echo base_url('assets/space1.png') ?>);
+        background-image: url(<?php echo base_url('assets/skies/deep-space.jpg') ?>);
     }
 
     @media (max-width:770px) {
