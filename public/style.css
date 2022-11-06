@@ -30,4 +30,5 @@ canvas {
     border: 2rem solid;
     border-style: double;
     border-color: #D32F2F;
+    border-radius: 2rem;
 }

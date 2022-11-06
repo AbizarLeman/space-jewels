@@ -11,18 +11,25 @@ class Highscore extends BaseController
 
     public function index()
     {
-        $model = new \App\Models\HighscoreModel;
-        $data = $model->orderBy('score', 'desc')->findAll();
-    
-        return view('highscore.php' , ['highscores' => $data]);
+        try {
+            $model = new \App\Models\HighscoreModel;
+            $data = $model->orderBy('score', 'desc')->findAll();
+        
+            return view('highscore.php' , ['highscores' => $data]);
+        } catch (\Throwable $th) {
+            return view('highscore.php' , ['highscores' => []]);
+        }
     }
 
     public function create()
     {
-        $score = $this->request->getVar();
+        try {
+            $score = $this->request->getVar();
 
-        $model = new \App\Models\HighscoreModel;
-        $model->insert($score);
+            $model = new \App\Models\HighscoreModel;
+            $model->insert($score);
+        } catch (\Throwable $th) {
+        }
 
         return $this->response->setStatusCode(200);
     }
