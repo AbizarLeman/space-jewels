@@ -33,22 +33,29 @@ Home
                     <label for="username" class="form-label">Enter your username:</label>
                     <input type="text" class="form-control" name="username" id="username">
                     <label for="time" class="form-label">Play time:</label>
-                    <select class="form-select">
-                        <option value="1">10 Seconds</option>
-                        <option value="2">20 Seconds</option>
-                        <option value="3">30 Seconds</option>
+                    <select class="form-select" name="seconds" id="seconds">
+                        <option value="1000">10 Seconds</option>
+                        <option value="2000">20 Seconds</option>
+                        <option value="3000">30 Seconds</option>
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-danger mt-3 btn-lg" onclick="redirect();">Play</button>
+                <button type="submit" class="btn btn-danger mt-3 btn-lg" onclick="validate();">Play</button>
             </div>
         </div>
     </div>
 </div>
 <script>
+    const validate = () => {
+        const username = document.getElementById("username").value
+        if (document.getElementById("username").value && document.getElementById("username").value) {
+            redirect()
+        }
+    }
+
     const redirect = () => {
-        window.location.href = "<?= base_url('/game'); ?>/" + document.getElementById("username").value;
+        window.location.href = "<?= base_url('/game'); ?>/" + document.getElementById("username").value + `?seconds=100`;
     }
 </script>
 
