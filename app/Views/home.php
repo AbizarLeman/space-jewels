@@ -37,6 +37,7 @@ Home
                         <option value="1000">10 Seconds</option>
                         <option value="2000">20 Seconds</option>
                         <option value="3000">30 Seconds</option>
+                        <option value="6000">1 Minutes</option>
                     </select>
                 </div>
             </div>
@@ -55,7 +56,7 @@ Home
     }
 
     const redirect = () => {
-        window.location.href = "<?= base_url('/game'); ?>/" + document.getElementById("username").value + `?seconds=100`;
+        window.location.href = "<?= base_url('/game'); ?>/" + document.getElementById("username").value + `?seconds=${document.getElementById("seconds").value}`;
     }
 </script>
 

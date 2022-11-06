@@ -124,7 +124,7 @@ Game
     function create() {
         scoreSaved = false;
 
-        originalDuration = 1000;
+        originalDuration = parseInt('<?php echo $seconds; ?>', 10);
         duration = originalDuration;
 
         gemCount = 10;

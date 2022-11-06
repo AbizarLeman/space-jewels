@@ -6,9 +6,13 @@ Highscore
 
 
 <?= $this->section('content') ?>
-<div class="col-md-6 offset-md-3 p-5" style="background-color:black">
-    <img id="optionalstuff" src="<?php echo base_url('assets/highscore1.png') ?> " class="col-md-6 offset-md-3 my-3" />
-    <div class="list-group w-auto" style="max-height: 40vh;overflow: auto;">
+<div class="col-md-6 offset-md-3 p-5" style="background-color:black;">
+    <div class="container">
+        <div class="row justify-content-center align-items-center px-4">
+            <img id="optionalstuff" src="<?php echo base_url('assets/highscore1.png') ?>" />
+        </div>
+    </div>
+    <div class="list-group w-auto" style="max-height: 40vh;overflow: auto;margin-top: 1rem;">
         <?php foreach ($highscores as $highscore) {
             echo '
                 <div class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true" style="background-color:light-grey">
@@ -20,7 +24,8 @@ Highscore
                     </div>
                     <small class="opacity-50 text-nowrap">' . $highscore->time . '</small>
                     </div>
-                </div> ';
+                </div>
+            ';
         }
         ?>
     </div>
